@@ -1,10 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>주문 상태 알림 시스템</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+    <script>
+        var stompClient = null;
+
+        function connect() {
+            var socket = new SockJS('/ws'); // 서버의 WebSocket 엔드포인트에 연결
+            stompClient = Stomp.over(socket);
+            stompClient.connect({}, function (frame) {
+                console.log('연결됨: ' + frame);
+                // '/topic/order' 주제를 구독하여 메시지를 수신합니다.
+                stompClient.subscribe('/topic/order', function (message) {
+                    showMessage(message.body);
+                });
+            });
+        }
+
+        function showMessage(message) {
+            var messages = document.getElementById('messages');
+            var messageElement = document.createElement('li');
+            messageElement.innerText = message;
+            messages.appendChild(messageElement);
+        }
+
+        window.onload = function() {
+            connect();
+        };
+    </script>
 </head>
 <body>
-$END$
+<h1>주문 상태 알림 시스템</h1>
+<ul id="messages"></ul>
 </body>
 </html>
